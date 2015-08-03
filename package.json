@@ -8,14 +8,10 @@
   },
   "author": "Oleg Berman",
   "license": "MIT",
-  "devDependencies": {
-    "grunt": "^0.4.5",
-    "grunt-contrib-coffee": "^0.13.0",
-    "grunt-contrib-watch": "^0.6.1",
-    "grunt-nodemon": "^0.4.0",
-    "request": "^2.60.0"
-  },
+  "devDependencies": {},
   "dependencies": {
-    "eventemitter3": "^1.1.1"
+    "eventemitter3": "^1.1.1",
+    "nodemon": "^1.4.0",
+    "request": "^2.60.0"
   }
 }

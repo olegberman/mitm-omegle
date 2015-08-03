@@ -58,7 +58,6 @@ class Connection
       @handleOmegleEvents.call @, body
 
   checkOmegleEvents: =>
-    # Force reconnect if there are more than 10 empty events
     url = @server + 'events'
     request.post helpers.getRequestObject(url, {id: @partnerId}), (err, response, body) =>
       @log 'Error with request (getting events)'.red if err
@@ -83,6 +82,7 @@ class Connection
     events =
       gotMessage: @messageReceived.bind @
       typing: @partnerTyped.bind @
+      stoppedtyping: @partnerStoppedTyping.bind @
       strangerDisconnected: @partnerDisconnected.bind @
       recaptchaRequired: @recaptchaRequired.bind @
     if events[event[0]]
@@ -101,6 +101,9 @@ class Connection
 
   partnerDisconnected: (event) =>
     @mirror.strangerDisconnected(@)
+
+  partnerStoppedTyping: (event) =>
+    @mirror.stoppedTyping(@)
 
   sendMessage: (msg) =>
     url = @server + 'send'

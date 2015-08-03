@@ -20,7 +20,7 @@ class Mirror
     against = @getOther.call @, connection
     against.sendTyping.call against
 
-  stoppedtyping: (connection) =>
+  stoppedTyping: (connection) =>
     against = @getOther.call @, connection
     against.sendStopTyping.call against
 
