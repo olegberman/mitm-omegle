@@ -10,13 +10,13 @@ class Mirror
     @connections.push connection
 
   getOther: (connection) =>
-    for v in @connections
-      if v.token isnt connection.token
-        return v
+    for item in @connections
+      if item.token isnt connection.token
+        return item
       else
 
   typing: (connection) =>
-    console.log (connection.token + ' is typing').bold
+    console.log (connection.token.green.bold + ' is typing').bold
     against = @getOther.call @, connection
     against.sendTyping.call against
 
@@ -25,14 +25,14 @@ class Mirror
     against.sendStopTyping.call against
 
   gotMessage: (connection, message) =>
-    console.log connection.token.white + ':' + message.blue.bold
+    console.log connection.token.green.bold + ': ' + message.yellow.bold
     against = @getOther.call @, connection
     against.sendMessage.call against, message
 
   strangerDisconnected: (connection) =>
-    console.log connection.token + ' is disconnected :('
+    console.log connection.token.green.bold + ' disconnected'.red
     against = @getOther.call @, connection
-    against.sendDisconnect.call against
+    connection.sendDisconnect.call connection
     connection.lookForPartner.call connection
     against.lookForPartner.call against
 

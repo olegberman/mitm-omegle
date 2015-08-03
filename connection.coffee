@@ -3,17 +3,18 @@ colors  = require 'colors'
 
 helpers = require './helpers'
 
+# request = request.defaults({ proxy: 'http://127.0.0.1:2222' });
+
 class Connection
 
   token: null
-
   server: null
-
   topics: []
-
   partnerId: null
-
   mirror: null
+
+  checkEventsDelay: 2000
+  reconnectAfterEmptyEvents: 20
 
   constructor: (topics, mirror) ->
     mirror.add(@)
@@ -28,17 +29,18 @@ class Connection
       obj = JSON.parse body
       @server = 'http://' + obj.servers[helpers.random(0, obj.servers.length-1)] + '/'
       @log 'Server found, working with ' + @server
-      setTimeout(@lookForPartner.bind @, helpers.random(1000, 3000))
+      setTimeout(@lookForPartner.bind @, helpers.random(0, @checkEventsDelay))
 
   generateToken: ->
-    # Taken from Omegle's main lib
+    # Ripped from Omegle's main lib
     token = ''
     for i in [0..8]
       c = Math.floor 32 * Math.random()
       token = token + "23456789ABCDEFGHJKLMNPQRSTUVWXYZ".charAt c
     token
 
-  lookForPartner: ->
+  lookForPartner: =>
+    @partnerId = null
     @log 'Looking for a partner'
     params = [
       ['rcs', '1'],
@@ -50,32 +52,46 @@ class Connection
     ]
     url = @server + 'start' + helpers.fromArrayToQuery params
     request helpers.getRequestObject(url), (err, response, body) =>
-      return err if err
-      obj = JSON.parse body
-      if !obj.clientID or obj.clientID.length < 1
-        @log 'Something went wrong, retrying'
+      if err
+        @log 'Error with request (looking for partner), retrying...'.red
         return setTimeout @lookForPartner.bind(@), 1000
-      @partnerId = obj.clientID
-      @checkOmegleEvents()
+      @handleOmegleEvents.call @, body
 
   checkOmegleEvents: =>
+    # Force reconnect if there are more than 10 empty events
     url = @server + 'events'
     request.post helpers.getRequestObject(url, {id: @partnerId}), (err, response, body) =>
-      return setTimeout(@checkOmegleEvents.bind(@), 2000) if body is 'null'
-      events = (JSON.parse '{ "pew" : ' + body + '}').pew
-      events.map (cur) =>
+      @log 'Error with request (getting events)'.red if err
+      if body is 'null'
+        return setTimeout @checkOmegleEvents.bind(@), @checkEventsDelay
+      @handleOmegleEvents.call @, body
+      setTimeout @checkOmegleEvents.bind(@), @checkEventsDelay
+
+  handleOmegleEvents: (body) =>
+    body = (JSON.parse '{ "pew" : ' + body + '}').pew
+    if !@partnerId
+      if body.clientID
+        return @partnerFound(body.clientID)
+      else
+        return setTimeout @lookForPartner.bind(@), @checkEventsDelay
+    else
+      body = [] if !body or !body.map
+      body.map (cur) =>
         @handleOmegleEvent.call @, cur
-      setTimeout(@checkOmegleEvents.bind(@), 2000)
 
   handleOmegleEvent: (event) =>
     events =
       gotMessage: @messageReceived.bind @
       typing: @partnerTyped.bind @
       strangerDisconnected: @partnerDisconnected.bind @
+      recaptchaRequired: @recaptchaRequired.bind @
     if events[event[0]]
       events[event[0]](event)
-    else
-      #@log "I don't yet know the event " + event[0]
+
+  partnerFound: (partnerId) =>
+    @log 'Partner found for ' + @token
+    @partnerId = partnerId
+    @checkOmegleEvents.call @
 
   messageReceived: (event) =>
     @mirror.gotMessage(@, event[1])
@@ -95,31 +111,38 @@ class Connection
       if body is 'win'
         # @log 'Message sent to ' + @partnerId
       else
-        @log 'Message send failed to ' + @partnerId
+        @log 'Message send failed'
 
   sendTyping: =>
     url = @server + 'typing'
     request helpers.getRequestObject(url, {id: @partnerId}), (err, response, body) =>
       if body is 'win'
-        #@log 'Typing flag sent to ' + @partnerId
+        @log 'Typing flag sent'
       else
-        @log 'Typing sent failed to ' + @partnerId
+        @log 'Typing sent failed'
 
   sendStopTyping: =>
     url = @server + 'stoppedtyping'
     request helpers.getRequestObject(url, {id: @partnerId}), (err, response, body) =>
       if body is 'win'
-        #@log 'Typing flag sent to ' + @partnerId
+        @log 'Not typing flag sent'
       else
-        @log 'Typing sent failed to ' + @partnerId
+        @log 'Not typing flag is not sent'
 
   sendDisconnect: =>
     url = @server + 'disconnect'
     request helpers.getRequestObject(url, {id: @partnerId}), (err, response, body) =>
       if body is 'win'
-        @log 'Disconnected from ' + @partnerId
+        @log 'Disconnected successfully'
       else
-        @log 'Not disconnected from ' + @partnerId + ' (error)'
+        @log 'Not disconnected'
+
+  recaptchaRequired: ->
+    @log 'Recaptcha required, try changing proxy settings...'
+    return process.exit()
+
+  flushPatnerId: =>
+    @partnerId = null
 
   log: (msg) ->
     console.log (@token + ': ').green.bold + msg.white
