@@ -1,6 +1,6 @@
 ## mitm-omegle
 
-*Watch random strangers talk 😂*
+**Watch random strangers talk 😂**
 
 #### How does this work?
 
