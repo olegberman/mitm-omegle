@@ -3,7 +3,7 @@ colors  = require 'colors'
 
 helpers = require './helpers'
 
-# request = request.defaults({ proxy: 'http://127.0.0.1:2222' });
+#request = request.defaults({ proxy: '' });
 
 class Connection
 
@@ -14,7 +14,6 @@ class Connection
   mirror: null
 
   checkEventsDelay: 2000
-  reconnectAfterEmptyEvents: 20
 
   constructor: (topics, mirror) ->
     mirror.add(@)
@@ -29,7 +28,7 @@ class Connection
       obj = JSON.parse body
       @server = 'http://' + obj.servers[helpers.random(0, obj.servers.length-1)] + '/'
       @log 'Server found, working with ' + @server
-      setTimeout(@lookForPartner.bind @, helpers.random(0, @checkEventsDelay))
+      setTimeout(@lookForPartner.bind @, helpers.random(@checkEventsDelay, @checkEventsDelay * 2))
 
   generateToken: ->
     # Ripped from Omegle's main lib
@@ -47,7 +46,7 @@ class Connection
       ['firstevents', '1'],
       ['spid', ''],
       ['randid', @token],
-      ['topics', @topics],
+      ['topics', JSON.stringify(@topics)],
       ['lang', 'en']
     ]
     url = @server + 'start' + helpers.fromArrayToQuery params
@@ -67,6 +66,7 @@ class Connection
       setTimeout @checkOmegleEvents.bind(@), @checkEventsDelay
 
   handleOmegleEvents: (body) =>
+    body = '[]' if !body
     body = (JSON.parse '{ "pew" : ' + body + '}').pew
     if !@partnerId
       if body.clientID

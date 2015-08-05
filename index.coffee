@@ -7,10 +7,10 @@ helpers    = require './helpers'
 
 class Mitm
 
-  interests: ['toronto', 'new york', 'canada', 'us']
+  interests: ['Toronto', 'New York', 'Texas']
 
   constructor: ->
-    console.log 'Initializing the mitm Omegle bot :)'.white.bold
+    console.log 'Initializing the mitm Omegle bot :)'.rainbow.bold
     mirror = new Mirror
     new Connection(@interests, mirror)
     new Connection(@interests, mirror)

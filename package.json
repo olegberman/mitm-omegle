@@ -10,7 +10,6 @@
   "license": "MIT",
   "devDependencies": {},
   "dependencies": {
-    "eventemitter3": "^1.1.1",
     "nodemon": "^1.4.0",
     "request": "^2.60.0"
   }
