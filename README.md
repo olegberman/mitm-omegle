@@ -18,7 +18,7 @@ After all do:
 ```
 npm install nodemon -g
 git clone https://github.com/olegberman/mitm-omegle.git
-cd mitm omegle
+cd mitm-omegle
 npm install
 nodemon index.coffee
 ```
