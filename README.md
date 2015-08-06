@@ -16,6 +16,7 @@ First of all, don't forget to change the interests. Go into `index.coffee` and p
 
 After all do:
 ```
+npm install coffee-script -g
 npm install nodemon -g
 git clone https://github.com/olegberman/mitm-omegle.git
 cd mitm-omegle
