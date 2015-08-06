@@ -10,6 +10,7 @@
   "license": "MIT",
   "devDependencies": {},
   "dependencies": {
+    "colors": "^1.1.2",
     "nodemon": "^1.4.0",
     "request": "^2.60.0"
   }
