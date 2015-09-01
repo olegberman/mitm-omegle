@@ -36,4 +36,4 @@ class Mirror
     connection.lookForPartner.call connection
     against.lookForPartner.call against
 
-module.exports = Mirror;
+module.exports = Mirror
