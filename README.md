@@ -24,5 +24,5 @@ npm install
 nodemon index.coffee
 ```
 
-### Enjoy 👀
-P.S. I'm not responsible for your actions, actually not responsible for anything. Have fun :)
+### Enjoy
+P.S. I'm not responsible for your actions.
