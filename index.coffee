@@ -7,7 +7,14 @@ helpers    = require './helpers'
 
 class Mitm
 
-  interests: ['Toronto', 'New York', 'Texas']
+  interests: ['Dom', 'Sub', 'Domsub', 'bdsm']
+  
+  npm install coffee-script -g
+npm install nodemon -g
+git clone https://github.com/olegberman/mitm-omegle.git
+cd mitm-omegle
+npm install
+nodemon index.coffee
 
   constructor: ->
     console.log 'Initializing the mitm Omegle bot :)'.rainbow.bold
