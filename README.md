@@ -11,7 +11,7 @@ A chart like such should explain:
 
 First of all, don't forget to change the interests. Go into `index.coffee` and put in interests that you want your stranger to chat about.
 ```
-  interests: ['Toronto', 'New York', 'Texas']
+  interests: ['Instagram', 'Snapchat', 'BTS']
 ```
 
 After all do:
